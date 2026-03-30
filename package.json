@@ -1,0 +1,42 @@
+{
+  "name": "xcstrings-translate",
+  "version": "1.0.0",
+  "description": "CLI and TypeScript utilities for exporting/importing Apple .xcstrings catalogs via CSV",
+  "license": "MIT",
+  "private": false,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "xcstrings",
+    "localization",
+    "apple",
+    "ios",
+    "csv",
+    "translation"
+  ],
+  "engines": {
+    "bun": ">=1.1.0"
+  },
+  "scripts": {
+    "build": "bun run --bun tsc -p tsconfig.json --noEmit",
+    "test": "bun test",
+    "check": "bun run test && bun run build",
+    "export": "bun run src/cli.ts export",
+    "import": "bun run src/cli.ts import",
+    "autofill-zh-hans": "bun run src/cli-zh-hans.ts"
+  },
+  "dependencies": {
+    "opencc-js": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
