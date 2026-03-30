@@ -1,41 +1,27 @@
 export function printHelp(): void {
-  console.log(`xcstrings-translate - export/import String Catalog strings via CSV
+  console.log(`xct - XCStrings translation utility
 
-Usage:
-  xcstrings-translate export --xcstrings <path> --out <csv> [options]
-  xcstrings-translate import --xcstrings <path> --csv <csv> [options]
+Base workflow:
+  xct <xcstrings-path> --auto <locale-list>
+  Example: xct ./Localizable.xcstrings --auto fr,it
 
-Export options:
-  --only-missing-locale [locale]  Limit rows to keys missing this locale.
-                                  If no locale is provided, requires --auto and scopes per target locale.
-  --retranslate-key-regex <regex> Include only keys matching regex.
-  --chunk <n>                     Split output into exactly n files.
-  --auto <locales>                Translate via Copilot CLI (comma-separated locales).
-  --auto-retries <n>              Retry count per failed auto-translation job (default: 2).
+Options for auto workflow:
+  --out <directory>               Directory for temporary CSV files (default: OS temp directory).
+  --export-only                   Export CSV files only; do not translate/import.
+  --chunk-size <n>                Rows per CSV chunk (default: 100).
+  --model <name>                  Translation model (default: claude-haiku-4.5).
+  --retranslate-matching <regex>  Restrict translation to keys matching regex.
 
-Import options:
-  --out <path>          Output catalog path (default: overwrite --xcstrings).
-  --strict-keys         Fail if CSV contains a key not found in the catalog.
-  --only-if-missing     Skip rows where target locale already has a translation.
+Import-only workflow:
+  xct <xcstrings-path> --import <csv-path>
+  This workflow does not accept any other options.
+
+Chinese conversion workflow:
+  xct <xcstrings-path> --cc zh-Hans
+  xct <xcstrings-path> --cc zh-Hant
 
 General options:
-  -h, --help            Show help.
-  --version             Show package version.
-`);
-}
-
-export function printZhHansHelp(): void {
-  console.log(`xcstrings-translate-zh-hans - auto-fill missing locale values using OpenCC conversion
-
-Usage:
-  xcstrings-translate-zh-hans --xcstrings <path> [options]
-
-Options:
-  --out <path>                Output catalog path (default: overwrite --xcstrings).
-  --source-locale <locale>    Source locale (default: zh-Hant).
-  --target-locale <locale>    Target locale (default: zh-Hans).
-  --opencc-from <value>       OpenCC source variant: hk, tw, twp, jp (default: tw).
-  --opencc-to <value>         OpenCC target variant: cn (default: cn).
-  -h, --help                  Show help.
+  -h, --help                      Show help.
+  --version                       Show package version.
 `);
 }

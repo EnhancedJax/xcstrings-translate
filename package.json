@@ -6,6 +6,9 @@
   "private": false,
   "type": "module",
   "main": "./src/index.ts",
+  "bin": {
+    "xct": "./src/cli.ts"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
@@ -29,9 +32,7 @@
     "build": "bun run --bun tsc -p tsconfig.json --noEmit",
     "test": "bun test",
     "check": "bun run test && bun run build",
-    "export": "bun run src/cli.ts export",
-    "import": "bun run src/cli.ts import",
-    "autofill-zh-hans": "bun run src/cli-zh-hans.ts"
+    "xct": "bun run src/cli.ts"
   },
   "dependencies": {
     "opencc-js": "^1.0.5"

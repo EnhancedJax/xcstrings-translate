@@ -74,6 +74,12 @@ describe("catalog export/import", () => {
               fr: { stringUnit: { state: "translated", value: "Payer" } },
             },
           },
+          "checkout.button": {
+            comment: "Button",
+            localizations: {
+              en: { stringUnit: { state: "translated", value: "Confirm" } },
+            },
+          },
           "profile.name": {
             comment: "Name",
             localizations: {
@@ -95,17 +101,17 @@ describe("catalog export/import", () => {
         outCsvPath,
         onlyMissingLocale: "fr",
         keyRegex: /^checkout\./,
-        chunkFiles: 2,
+        chunkSize: 1,
       });
 
-      expect(result.count).toBe(1);
+      expect(result.count).toBe(2);
       expect(result.writtenCsvPaths.length).toBe(2);
 
       const chunk1 = readFileSync(result.writtenCsvPaths[0]!, "utf8");
       const chunk2 = readFileSync(result.writtenCsvPaths[1]!, "utf8");
       expect(chunk1.startsWith("key,comment\n")).toBeTrue();
       expect(chunk1.includes("checkout.title")).toBeTrue();
-      expect(chunk2).toBe("key,comment\n\n");
+      expect(chunk2.includes("checkout.button")).toBeTrue();
     });
   });
 

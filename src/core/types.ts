@@ -26,7 +26,7 @@ export interface ExportTranslatableOptions {
   outCsvPath: string;
   onlyMissingLocale?: string;
   keyRegex?: RegExp;
-  chunkFiles?: number;
+  chunkSize?: number;
 }
 
 export interface ExportTranslatableResult {

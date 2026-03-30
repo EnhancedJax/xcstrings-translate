@@ -1,7 +1,6 @@
 import { XcstringsError } from "../core/errors.ts";
 
 export interface ParsedArgs {
-  command?: string;
   optionValues: Map<string, string>;
   optionFlags: Set<string>;
   positionals: string[];
@@ -12,7 +11,7 @@ export interface FlagState {
   value?: string;
 }
 
-function parseOptionTokens(command: string | undefined, rest: string[]): ParsedArgs {
+function parseOptionTokens(rest: string[]): ParsedArgs {
   const optionValues = new Map<string, string>();
   const optionFlags = new Set<string>();
   const positionals: string[] = [];
@@ -36,20 +35,14 @@ function parseOptionTokens(command: string | undefined, rest: string[]): ParsedA
   }
 
   return {
-    command,
     optionValues,
     optionFlags,
     positionals,
   };
 }
 
-export function parseCliArgs(argv: string[]): ParsedArgs {
-  const [command, ...rest] = argv;
-  return parseOptionTokens(command, rest);
-}
-
 export function parseStandaloneArgs(argv: string[]): ParsedArgs {
-  return parseOptionTokens(undefined, argv);
+  return parseOptionTokens(argv);
 }
 
 export function hasFlag(args: ParsedArgs, optionName: string): boolean {
@@ -58,15 +51,6 @@ export function hasFlag(args: ParsedArgs, optionName: string): boolean {
 
 export function getOptionValue(args: ParsedArgs, optionName: string): string | undefined {
   return args.optionValues.get(optionName);
-}
-
-export function getRequiredOptionValue(args: ParsedArgs, optionName: string): string {
-  const value = args.optionValues.get(optionName)?.trim();
-  if (value == null || value.length === 0) {
-    throw new XcstringsError("INVALID_ARGUMENT", `Missing required option ${optionName}.`);
-  }
-
-  return value;
 }
 
 export function getOptionState(args: ParsedArgs, optionName: string): FlagState {
@@ -116,33 +100,4 @@ export function parseRegexOption(args: ParsedArgs, optionName: string): RegExp |
     const reason = error instanceof Error ? error.message : String(error);
     throw new XcstringsError("INVALID_ARGUMENT", `${optionName} is not a valid regex: ${reason}`);
   }
-}
-
-export function parseCsvLocaleListOption(args: ParsedArgs, optionName: string): string[] {
-  const raw = args.optionValues.get(optionName)?.trim();
-  if (raw == null || raw.length === 0) {
-    return [];
-  }
-
-  const uniqueLocales: string[] = [];
-  const seen = new Set<string>();
-
-  for (const part of raw.split(",")) {
-    const locale = part.trim();
-    if (locale.length === 0 || seen.has(locale)) {
-      continue;
-    }
-
-    seen.add(locale);
-    uniqueLocales.push(locale);
-  }
-
-  if (uniqueLocales.length === 0) {
-    throw new XcstringsError(
-      "INVALID_ARGUMENT",
-      `${optionName} must contain at least one locale (for example: --auto ja or --auto fr,it).`,
-    );
-  }
-
-  return uniqueLocales;
 }

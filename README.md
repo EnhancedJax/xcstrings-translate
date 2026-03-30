@@ -1,169 +1,67 @@
-# xcstrings-translate
+# xcstrings-translate 🌍
 
-`xcstrings-translate` is a Bun-based CLI and TypeScript library for Apple String Catalog (`.xcstrings`) translation workflows.
+`xct` is a CLI util to machine-translate Apple String Catalog (.xcstrings).
 
-It supports:
-- Exporting translatable keys to CSV.
-- Importing translated CSV back into `.xcstrings`.
-- Optional auto-translation orchestration via Copilot CLI.
-- Auto-filling `zh-Hans` from `zh-Hant` with OpenCC.
+## Features
+
+- Machine-translate .xcstrings to target locales via Copilot CLI.
+- Importing translated CSV back into .xcstrings.
+- Auto-filling zh-Hans from zh-Hant with OpenCC.
 
 ## Requirements
 
 - Bun `>= 1.1.0`
-- For auto mode: Copilot CLI available as `copilot` in `PATH`
+- `copilot` CLI in `PATH`. [Learn more](https://github.com/features/copilot/cli)
 
-## Install
+## Usage
 
-```bash
-bun install
-```
-
-## CLI Usage
-
-### Export
-
-Export all translatable keys (`shouldTranslate !== false`) to CSV:
+### Machine translation workflow
 
 ```bash
-bun run src/cli.ts export \
-  --xcstrings ./Localizable.xcstrings \
-  --out ./keys.csv
+xct ./Localizable.xcstrings --auto fr,it
 ```
 
-Export only keys missing a locale:
+Options:
+
+- `--out <directory>`
+  - Directory for temporary CSV files.
+  - Defaults to the OS temp directory (`os.tmpdir()`), so it is cross-platform.
+- `--export-only`
+  - Export temp CSV files only, skip translation/import.
+- `--chunk-size <n>`
+  - Number of rows per temp CSV chunk.
+  - Default: `100`.
+- `--model <name>`
+  - Optional model override for auto-translation.
+  - Default: `claude-haiku-4.5`.
+  - Recommend to use 0.33x models for best results. For no usage drain, use 0x models like `gpt-4.1`
+- `--retranslate-matching <regex>`
+  - Only process keys matching the regex.
+
+### Import-only workflow
 
 ```bash
-bun run src/cli.ts export \
-  --xcstrings ./Localizable.xcstrings \
-  --out ./fr-missing.csv \
-  --only-missing-locale fr
+xct ./Localizable.xcstrings --import ./translations_fr.csv
 ```
 
-Chunk into multiple files:
+### Chinese conversion workflow
 
 ```bash
-bun run src/cli.ts export \
-  --xcstrings ./Localizable.xcstrings \
-  --out ./keys.csv \
-  --chunk 5
+xct ./Localizable.xcstrings --cc zh-Hans
+xct ./Localizable.xcstrings --cc zh-Hant
 ```
 
-Filter by key regex:
+Options:
 
-```bash
-bun run src/cli.ts export \
-  --xcstrings ./Localizable.xcstrings \
-  --out ./keys.csv \
-  --retranslate-key-regex '^checkout\\.'
-```
-
-### Import
-
-Import CSV shaped as `key,<locale>`:
-
-```bash
-bun run src/cli.ts import \
-  --xcstrings ./Localizable.xcstrings \
-  --csv ./translations-fr.csv
-```
-
-Safe partial import (only fill missing target-locale entries):
-
-```bash
-bun run src/cli.ts import \
-  --xcstrings ./Localizable.xcstrings \
-  --csv ./translations-fr.csv \
-  --only-if-missing
-```
-
-Strict key checking:
-
-```bash
-bun run src/cli.ts import \
-  --xcstrings ./Localizable.xcstrings \
-  --csv ./translations-fr.csv \
-  --strict-keys
-```
-
-### Auto Mode (Copilot CLI)
-
-Run export, auto-translate, and import in one flow:
-
-```bash
-bun run src/cli.ts export \
-  --xcstrings ./Localizable.xcstrings \
-  --out ./keys.csv \
-  --chunk 4 \
-  --auto fr,it,ja
-```
-
-With locale-specific missing-only export:
-
-```bash
-bun run src/cli.ts export \
-  --xcstrings ./Localizable.xcstrings \
-  --out ./keys.csv \
-  --chunk 4 \
-  --auto fr,it,ja \
-  --only-missing-locale
-```
-
-### zh-Hans Auto-fill (OpenCC)
-
-```bash
-bun run src/cli-zh-hans.ts \
-  --xcstrings ./Localizable.xcstrings
-```
-
-Optional flags:
-- `--out <path>`
-- `--source-locale <locale>` (default: `zh-Hant`)
-- `--target-locale <locale>` (default: `zh-Hans`)
-- `--opencc-from <hk|tw|twp|jp>` (default: `tw`)
-- `--opencc-to <cn>` (default: `cn`)
-
-## Library API
-
-```ts
-import {
-  readCatalog,
-  writeCatalog,
-  parseCsv,
-  formatCsvRow,
-  exportTranslatableKeysToCsvDetailed,
-  applyTranslationsFromCsv,
-  autoFillMissingLocaleFromLocale,
-} from "xcstrings-translate";
-```
-
-Core exported types include:
-- `XCStringCatalog`
-- `StringEntry`
-- `LocalizationEntry`
-- `TranslationRow`
-- `ExportTranslatableOptions`
-- `ApplyTranslationsOptions`
+- `--cc zh-Hans`: fill missing `zh-Hans` from `zh-Hant`
+- `--cc zh-Hant`: fill missing `zh-Hant` from `zh-Hans`
 
 ## Development
 
-Run tests:
-
 ```bash
-bun test
-```
-
-Run full checks:
-
-```bash
+bun install
 bun run check
 ```
-
-## Notes
-
-- CSV parsing supports RFC-4180 quoting semantics.
-- Import normalization includes placeholder safety for full-width percent forms (for example `％@` -> `%@`).
-- Catalog writes preserve Xcode-style JSON spacing (`"key" : value`).
 
 ## License
 

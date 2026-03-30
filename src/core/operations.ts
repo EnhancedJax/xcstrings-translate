@@ -110,7 +110,14 @@ export function exportTranslatableKeysToCsvDetailed(
     count += 1;
   }
 
-  if (options.chunkFiles == null) {
+  if (options.chunkSize == null) {
+    if (rows.length === 0) {
+      return {
+        count,
+        writtenCsvPaths: [],
+      };
+    }
+
     writeFileSync(outPath, `key,comment\n${rows.join("\n")}\n`, "utf8");
     return {
       count,
@@ -118,20 +125,24 @@ export function exportTranslatableKeysToCsvDetailed(
     };
   }
 
-  const chunkFiles = assertPositiveInteger(options.chunkFiles, "chunkFiles");
-  const baseChunkSize = Math.floor(rows.length / chunkFiles);
-  const remainder = rows.length % chunkFiles;
+  if (rows.length === 0) {
+    return {
+      count,
+      writtenCsvPaths: [],
+    };
+  }
+
+  const chunkSize = assertPositiveInteger(options.chunkSize, "chunkSize");
+  const chunkFiles = Math.ceil(rows.length / chunkSize);
 
   const writtenCsvPaths: string[] = [];
-  let offset = 0;
 
   for (let index = 0; index < chunkFiles; index += 1) {
-    const size = baseChunkSize + (index < remainder ? 1 : 0);
+    const offset = index * chunkSize;
     const outChunkPath = chunkedCsvPath(outPath, index + 1);
-    const chunkRows = rows.slice(offset, offset + size);
+    const chunkRows = rows.slice(offset, offset + chunkSize);
     writeFileSync(outChunkPath, `key,comment\n${chunkRows.join("\n")}\n`, "utf8");
     writtenCsvPaths.push(outChunkPath);
-    offset += size;
   }
 
   return {
