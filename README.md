@@ -15,6 +15,8 @@
 
 ## Usage
 
+> 💡 Turn on "Automatically generate string catalog comments" in XCode for best machine translation results.
+
 ### Machine translation workflow
 
 ```bash
