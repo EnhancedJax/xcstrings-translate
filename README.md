@@ -10,7 +10,6 @@
 
 ## Requirements
 
-- Bun `>= 1.1.0`
 - `copilot` CLI in `PATH`. [Learn more](https://github.com/features/copilot/cli)
 
 ## Usage
