@@ -35,7 +35,7 @@ describe("CSV parser", () => {
     expect(rows).toEqual([
       ["key", "comment"],
       ["a", "line 1\nline 2"],
-      ["b", "he said \"hi\""],
+      ["b", 'he said "hi"'],
     ]);
   });
 
@@ -170,9 +170,40 @@ describe("catalog export/import", () => {
       expect(result.warnings.length).toBe(1);
 
       const updatedCatalog = readCatalog(catalogPath);
-      expect(updatedCatalog.strings.welcome?.localizations?.fr?.stringUnit.value).toBe("Salut");
-      expect(updatedCatalog.strings.existing?.localizations?.fr?.stringUnit.value).toBe("Existant");
-      expect(updatedCatalog.strings.percent?.localizations?.fr?.stringUnit.value).toBe("50%@");
+      expect(
+        updatedCatalog.strings.welcome?.localizations?.fr?.stringUnit.value,
+      ).toBe("Salut");
+      expect(
+        updatedCatalog.strings.existing?.localizations?.fr?.stringUnit.value,
+      ).toBe("Existant");
+      expect(
+        updatedCatalog.strings.percent?.localizations?.fr?.stringUnit.value,
+      ).toBe("50%@");
+    });
+  });
+
+  it("throws when strictKeys is enabled and CSV contains unknown keys", () => {
+    withTempDir((tempDir) => {
+      const catalogPath = writeCatalogFile(tempDir, {
+        strings: {
+          hello: {
+            localizations: {
+              en: { stringUnit: { state: "translated", value: "Hello" } },
+            },
+          },
+        },
+      });
+
+      const csvPath = path.join(tempDir, "fr.csv");
+      writeFileSync(csvPath, "key,fr\nunknown,bonjour\n", "utf8");
+
+      expect(() =>
+        applyTranslationsFromCsv({
+          xcstringsPath: catalogPath,
+          translationsCsvPath: csvPath,
+          strictKeys: true,
+        }),
+      ).toThrow("Unknown key in CSV");
     });
   });
 
@@ -187,8 +218,12 @@ describe("catalog export/import", () => {
           },
           already_done: {
             localizations: {
-              "zh-Hant": { stringUnit: { state: "translated", value: "已完成" } },
-              "zh-Hans": { stringUnit: { state: "translated", value: "已完成" } },
+              "zh-Hant": {
+                stringUnit: { state: "translated", value: "已完成" },
+              },
+              "zh-Hans": {
+                stringUnit: { state: "translated", value: "已完成" },
+              },
             },
           },
           no_source: {
@@ -220,9 +255,81 @@ describe("catalog export/import", () => {
       });
 
       const updatedCatalog = readCatalog(catalogPath);
-      expect(updatedCatalog.strings.fill_me?.localizations?.["zh-Hans"]?.stringUnit.value).toBe(
-        "繁體-simp",
-      );
+      expect(
+        updatedCatalog.strings.fill_me?.localizations?.["zh-Hans"]?.stringUnit
+          .value,
+      ).toBe("繁體-simp");
+    });
+  });
+});
+
+describe("catalog IO errors", () => {
+  it("throws for invalid JSON catalog", () => {
+    withTempDir((tempDir) => {
+      const catalogPath = path.join(tempDir, "bad.xcstrings");
+      writeFileSync(catalogPath, "{bad-json", "utf8");
+      expect(() => readCatalog(catalogPath)).toThrow("Failed to parse JSON");
+    });
+  });
+
+  it("throws when strings object is missing", () => {
+    withTempDir((tempDir) => {
+      const catalogPath = path.join(tempDir, "missing-strings.xcstrings");
+      writeFileSync(catalogPath, JSON.stringify({ version: "1.0" }), "utf8");
+      expect(() => readCatalog(catalogPath)).toThrow('missing object field "strings"');
+    });
+  });
+});
+
+describe("export edge cases", () => {
+  it("returns no files when no rows match in chunked mode", () => {
+    withTempDir((tempDir) => {
+      const catalogPath = writeCatalogFile(tempDir, {
+        strings: {
+          key: {
+            localizations: {
+              en: { stringUnit: { state: "translated", value: "Hello" } },
+              fr: { stringUnit: { state: "translated", value: "Bonjour" } },
+            },
+          },
+        },
+      });
+
+      const outCsvPath = path.join(tempDir, "rows.csv");
+      const result = exportTranslatableKeysToCsvDetailed({
+        xcstringsPath: catalogPath,
+        outCsvPath,
+        onlyMissingLocale: "fr",
+        chunkSize: 100,
+      });
+
+      expect(result.count).toBe(0);
+      expect(result.writtenCsvPaths).toEqual([]);
+    });
+  });
+
+  it("returns no files when no rows match in single-file mode", () => {
+    withTempDir((tempDir) => {
+      const catalogPath = writeCatalogFile(tempDir, {
+        strings: {
+          key: {
+            localizations: {
+              en: { stringUnit: { state: "translated", value: "Hello" } },
+              fr: { stringUnit: { state: "translated", value: "Bonjour" } },
+            },
+          },
+        },
+      });
+
+      const outCsvPath = path.join(tempDir, "rows.csv");
+      const result = exportTranslatableKeysToCsvDetailed({
+        xcstringsPath: catalogPath,
+        outCsvPath,
+        onlyMissingLocale: "fr",
+      });
+
+      expect(result.count).toBe(0);
+      expect(result.writtenCsvPaths).toEqual([]);
     });
   });
 });

@@ -50,7 +50,10 @@ export function parseCsv(text: string): string[][] {
 
     if (char === '"') {
       if (cell.length > 0 || justClosedQuote) {
-        throw new XcstringsError("INVALID_CSV", "CSV has an invalid quote in an unquoted field.");
+        throw new XcstringsError(
+          "INVALID_CSV",
+          "CSV has an invalid quote in an unquoted field.",
+        );
       }
       inQuotes = true;
       continue;
@@ -90,7 +93,10 @@ export function parseCsv(text: string): string[][] {
   }
 
   if (inQuotes) {
-    throw new XcstringsError("INVALID_CSV", "CSV has an unterminated quoted field.");
+    throw new XcstringsError(
+      "INVALID_CSV",
+      "CSV has an unterminated quoted field.",
+    );
   }
 
   pushCell();
@@ -110,17 +116,23 @@ export function parseTranslationsCsv(rows: string[][]): TranslationRow[] {
   if (header.length !== 2) {
     throw new XcstringsError(
       "INVALID_CSV",
-      'Translation CSV header must be exactly two columns: key,<locale>.',
+      "Translation CSV header must be exactly two columns: key,<locale>.",
     );
   }
 
   if (header[0]!.toLowerCase() !== "key") {
-    throw new XcstringsError("INVALID_CSV", 'Translation CSV first column must be named "key".');
+    throw new XcstringsError(
+      "INVALID_CSV",
+      'Translation CSV first column must be named "key".',
+    );
   }
 
   const locale = header[1]!;
   if (locale.length === 0) {
-    throw new XcstringsError("INVALID_CSV", "Translation CSV locale header is empty.");
+    throw new XcstringsError(
+      "INVALID_CSV",
+      "Translation CSV locale header is empty.",
+    );
   }
 
   const translations: TranslationRow[] = [];

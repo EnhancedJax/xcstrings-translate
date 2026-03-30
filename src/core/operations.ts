@@ -17,7 +17,10 @@ function shouldIncludeForExport(entry: StringEntry): boolean {
   return entry.shouldTranslate !== false;
 }
 
-function translationValue(entry: StringEntry, locale: string): string | undefined {
+function translationValue(
+  entry: StringEntry,
+  locale: string,
+): string | undefined {
   const value = entry.localizations?.[locale]?.stringUnit?.value;
   return typeof value === "string" ? value : undefined;
 }
@@ -54,7 +57,10 @@ function readCsvFile(csvPath: string): string {
   return csvText;
 }
 
-export function isTranslationMissingForLocale(entry: StringEntry, locale: string): boolean {
+export function isTranslationMissingForLocale(
+  entry: StringEntry,
+  locale: string,
+): boolean {
   const value = translationValue(entry, locale);
   if (value == null) {
     return true;
@@ -81,8 +87,12 @@ export function buildExportComment(entry: StringEntry): string {
 export function exportTranslatableKeysToCsvDetailed(
   options: ExportTranslatableOptions,
 ): ExportTranslatableResult {
-  const catalogPath = path.resolve(assertNonEmpty(options.xcstringsPath, "xcstringsPath"));
-  const outPath = path.resolve(assertNonEmpty(options.outCsvPath, "outCsvPath"));
+  const catalogPath = path.resolve(
+    assertNonEmpty(options.xcstringsPath, "xcstringsPath"),
+  );
+  const outPath = path.resolve(
+    assertNonEmpty(options.outCsvPath, "outCsvPath"),
+  );
   const onlyMissingLocale = options.onlyMissingLocale?.trim();
   const keyRegex = options.keyRegex;
 
@@ -141,7 +151,11 @@ export function exportTranslatableKeysToCsvDetailed(
     const offset = index * chunkSize;
     const outChunkPath = chunkedCsvPath(outPath, index + 1);
     const chunkRows = rows.slice(offset, offset + chunkSize);
-    writeFileSync(outChunkPath, `key,comment\n${chunkRows.join("\n")}\n`, "utf8");
+    writeFileSync(
+      outChunkPath,
+      `key,comment\n${chunkRows.join("\n")}\n`,
+      "utf8",
+    );
     writtenCsvPaths.push(outChunkPath);
   }
 
@@ -151,7 +165,9 @@ export function exportTranslatableKeysToCsvDetailed(
   };
 }
 
-export function exportTranslatableKeysToCsv(options: ExportTranslatableOptions): number {
+export function exportTranslatableKeysToCsv(
+  options: ExportTranslatableOptions,
+): number {
   return exportTranslatableKeysToCsvDetailed(options).count;
 }
 
@@ -159,13 +175,21 @@ export function parseTranslationsCsvText(csvText: string) {
   return parseTranslationsCsv(parseCsv(csvText));
 }
 
-export function applyTranslationsFromCsv(options: ApplyTranslationsOptions): ApplyTranslationsResult {
-  const catalogPath = path.resolve(assertNonEmpty(options.xcstringsPath, "xcstringsPath"));
-  const translationsCsvPath = path.resolve(assertNonEmpty(options.translationsCsvPath, "translationsCsvPath"));
+export function applyTranslationsFromCsv(
+  options: ApplyTranslationsOptions,
+): ApplyTranslationsResult {
+  const catalogPath = path.resolve(
+    assertNonEmpty(options.xcstringsPath, "xcstringsPath"),
+  );
+  const translationsCsvPath = path.resolve(
+    assertNonEmpty(options.translationsCsvPath, "translationsCsvPath"),
+  );
   const outCatalogPath = path.resolve(options.outXcstringsPath ?? catalogPath);
 
   const catalog = readCatalog(catalogPath);
-  const translationRows = parseTranslationsCsvText(readCsvFile(translationsCsvPath));
+  const translationRows = parseTranslationsCsvText(
+    readCsvFile(translationsCsvPath),
+  );
 
   const skippedMissingKey: string[] = [];
   const skippedAlreadyTranslated: string[] = [];
@@ -184,11 +208,16 @@ export function applyTranslationsFromCsv(options: ApplyTranslationsOptions): App
     }
 
     if (!shouldIncludeForExport(entry)) {
-      warnings.push(`Skipped key with shouldTranslate=false: ${JSON.stringify(row.key)}`);
+      warnings.push(
+        `Skipped key with shouldTranslate=false: ${JSON.stringify(row.key)}`,
+      );
       continue;
     }
 
-    if (options.onlyIfMissingForTargetLocale && !isTranslationMissingForLocale(entry, row.locale)) {
+    if (
+      options.onlyIfMissingForTargetLocale &&
+      !isTranslationMissingForLocale(entry, row.locale)
+    ) {
       skippedAlreadyTranslated.push(row.key);
       continue;
     }
@@ -221,7 +250,9 @@ export function applyTranslationsFromCsv(options: ApplyTranslationsOptions): App
 export function autoFillMissingLocaleFromLocale(
   options: AutoFillMissingLocaleFromLocaleOptions,
 ): AutoFillMissingLocaleFromLocaleResult {
-  const catalogPath = path.resolve(assertNonEmpty(options.xcstringsPath, "xcstringsPath"));
+  const catalogPath = path.resolve(
+    assertNonEmpty(options.xcstringsPath, "xcstringsPath"),
+  );
   const outCatalogPath = path.resolve(options.outXcstringsPath ?? catalogPath);
   const sourceLocale = assertNonEmpty(options.sourceLocale, "sourceLocale");
   const targetLocale = assertNonEmpty(options.targetLocale, "targetLocale");

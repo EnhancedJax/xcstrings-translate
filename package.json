@@ -35,6 +35,7 @@
     "xct": "bun run src/cli.ts"
   },
   "dependencies": {
+    "commander": "^14.0.3",
     "opencc-js": "^1.0.5"
   },
   "devDependencies": {

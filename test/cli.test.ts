@@ -1,5 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -12,7 +19,11 @@ function withTempDir<T>(run: (tempDir: string) => T): T {
   }
 }
 
-function runCli(args: string[]): { exitCode: number; stdout: string; stderr: string } {
+function runCli(args: string[]): {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+} {
   const proc = Bun.spawnSync(["bun", "run", "src/cli.ts", ...args], {
     cwd: process.cwd(),
     stdout: "pipe",
@@ -74,7 +85,9 @@ describe("xct cli", () => {
       ]);
 
       expect(result.exitCode).toBe(0);
-      const files = readdirSync(outDir).filter((file) => file.startsWith("xct_source_fr_"));
+      const files = readdirSync(outDir).filter((file) =>
+        file.startsWith("xct_source_fr_"),
+      );
       expect(files.length).toBe(2);
     });
   });
@@ -86,9 +99,17 @@ describe("xct cli", () => {
       const csvPath = path.join(tempDir, "fr.csv");
       writeFileSync(csvPath, "key,fr\nhello,bonjour\n", "utf8");
 
-      const result = runCli([catalogPath, "--import", csvPath, "--out", outDir]);
+      const result = runCli([
+        catalogPath,
+        "--import",
+        csvPath,
+        "--out",
+        outDir,
+      ]);
       expect(result.exitCode).toBe(1);
-      expect(result.stderr).toContain("Option --out is not valid for this workflow.");
+      expect(result.stderr).toContain(
+        "Option --out is not valid for this workflow.",
+      );
     });
   });
 
@@ -121,11 +142,15 @@ describe("xct cli", () => {
 
       const updatedCatalog = JSON.parse(readFileSync(catalogPath, "utf8")) as {
         strings: {
-          hello?: { localizations?: { fr?: { stringUnit?: { value?: string } } } };
+          hello?: {
+            localizations?: { fr?: { stringUnit?: { value?: string } } };
+          };
         };
       };
 
-      expect(updatedCatalog.strings.hello?.localizations?.fr?.stringUnit?.value).toBe("bonjour");
+      expect(
+        updatedCatalog.strings.hello?.localizations?.fr?.stringUnit?.value,
+      ).toBe("bonjour");
     });
   });
 
@@ -159,10 +184,15 @@ describe("xct cli", () => {
 
       const updatedHant = JSON.parse(readFileSync(toHantPath, "utf8")) as {
         strings: {
-          key?: { localizations?: { "zh-Hant"?: { stringUnit?: { value?: string } } } };
+          key?: {
+            localizations?: { "zh-Hant"?: { stringUnit?: { value?: string } } };
+          };
         };
       };
-      expect(updatedHant.strings.key?.localizations?.["zh-Hant"]?.stringUnit?.value?.length ?? 0).toBeGreaterThan(0);
+      expect(
+        updatedHant.strings.key?.localizations?.["zh-Hant"]?.stringUnit?.value
+          ?.length ?? 0,
+      ).toBeGreaterThan(0);
     });
   });
 });

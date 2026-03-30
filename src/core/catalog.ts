@@ -29,7 +29,10 @@ export function readCatalog(filePath: string): XCStringCatalog {
     parsed = JSON.parse(raw);
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
-    throw new XcstringsError("INVALID_CATALOG", `Failed to parse JSON at ${resolvedPath}: ${reason}`);
+    throw new XcstringsError(
+      "INVALID_CATALOG",
+      `Failed to parse JSON at ${resolvedPath}: ${reason}`,
+    );
   }
 
   if (!isCatalog(parsed)) {

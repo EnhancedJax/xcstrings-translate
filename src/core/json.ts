@@ -13,17 +13,22 @@ export function stringifyAppleJson(value: unknown, depth = 0): string {
       return "[]";
     }
 
-    const lines = value.map((item) => `${childIndent}${stringifyAppleJson(item, depth + 1)}`);
+    const lines = value.map(
+      (item) => `${childIndent}${stringifyAppleJson(item, depth + 1)}`,
+    );
     return `[` + `\n${lines.join(",\n")}\n${indent}]`;
   }
 
-  const entries = Object.entries(value as Record<string, unknown>).filter(([, item]) => item !== undefined);
+  const entries = Object.entries(value as Record<string, unknown>).filter(
+    ([, item]) => item !== undefined,
+  );
   if (entries.length === 0) {
     return "{}";
   }
 
   const lines = entries.map(
-    ([key, item]) => `${childIndent}${JSON.stringify(key)} : ${stringifyAppleJson(item, depth + 1)}`,
+    ([key, item]) =>
+      `${childIndent}${JSON.stringify(key)} : ${stringifyAppleJson(item, depth + 1)}`,
   );
   return `{` + `\n${lines.join(",\n")}\n${indent}}`;
 }
