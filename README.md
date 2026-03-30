@@ -2,6 +2,8 @@
 
 `xct` is a CLI util to machine-translate Apple String Catalog (.xcstrings).
 
+> 💫 I personally use this for my app [Replay](https://replayapp.dev), check it out!
+
 ## Features
 
 - Machine-translate .xcstrings to target locales via Copilot CLI.
