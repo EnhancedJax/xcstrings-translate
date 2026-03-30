@@ -40,6 +40,36 @@ Thanks for helping improve `xcstrings-translate`. This document covers how to se
    bun run src/cli.ts path/to/Localizable.xcstrings --cc zh-Hans
    ```
 
+## Install local copy globally
+
+Use this when you want `xct` available in your shell as a global command while testing local changes.
+
+1. Build the package:
+
+   ```bash
+   bun run build
+   ```
+
+2. Install this local checkout globally:
+
+   ```bash
+   npm install -g .
+   ```
+
+3. Verify the global command:
+
+   ```bash
+   xct --help
+   ```
+
+To update after local changes, run `npm run build` and `npm install -g .` again.
+
+To remove the global install:
+
+```bash
+npm uninstall -g xcstrings-translate
+```
+
 ## Verify your changes
 
 Run the full check (tests plus TypeScript compile):
