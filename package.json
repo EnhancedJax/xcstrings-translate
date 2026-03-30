@@ -1,7 +1,7 @@
 {
   "name": "xcstrings-translate",
   "version": "1.0.0",
-  "description": "CLI and TypeScript utilities for exporting/importing Apple .xcstrings catalogs via CSV",
+  "description": "CLI util to machine translate xcstrings using Copilot",
   "license": "MIT",
   "private": false,
   "type": "module",
@@ -24,10 +24,14 @@
   "keywords": [
     "xcstrings",
     "localization",
-    "apple",
+    "swift",
+    "xcode",
     "ios",
+    "machine-translation",
+    "copilot",
     "csv",
-    "translation"
+    "translation",
+    "cli"
   ],
   "engines": {
     "node": ">=18"
