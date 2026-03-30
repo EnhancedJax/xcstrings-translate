@@ -10,7 +10,20 @@
 
 ## Requirements
 
+- Node.js `>=18`
 - `copilot` CLI in `PATH`. [Learn more](https://github.com/features/copilot/cli)
+
+## Install
+
+```bash
+npm install -g xcstrings-translate
+```
+
+Or run without installing:
+
+```bash
+npx xcstrings-translate --help
+```
 
 ## Usage
 
